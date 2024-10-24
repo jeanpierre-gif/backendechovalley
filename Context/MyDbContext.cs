@@ -1,0 +1,14 @@
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
+using training.Models;
+
+namespace training.Context
+{
+    public class MyDbContext : IdentityDbContext<UserModel>
+    {
+        public MyDbContext(DbContextOptions<MyDbContext> options) : base(options) { }
+        public DbSet<UserModel> users { get; set; }
+        
+    }
+}
