@@ -8,6 +8,5 @@ namespace training.Context
     {
         public MyDbContext(DbContextOptions<MyDbContext>options): base(options) { }
         public DbSet<UserModel> users { get; set; }
-        public DbSet<PostModel> posts { get; set; }
     }
 }
