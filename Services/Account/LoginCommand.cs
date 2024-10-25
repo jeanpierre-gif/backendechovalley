@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using training.DTOs;
 using training.Models;
+using training.Services.Token;
 
 namespace training.Services.Account
 {
@@ -10,22 +11,26 @@ namespace training.Services.Account
         public LoginDTO LoginDTO { get; set; }
         public class LoginCommandHandler : IRequestHandler<LoginCommand, ResponseModel<UserDTO>>
         {
-            private readonly UserManager<UserModel> userManager;
-            public LoginCommandHandler(UserManager<UserModel> userManager)
+            private UserManager<UserModel> userManager;
+            private TokenService tokenService;
+            public LoginCommandHandler(UserManager<UserModel> userManager, TokenService tokenService)
             {
+                this.tokenService= tokenService;
                 this.userManager = userManager;
+           
             }
+
             public async Task<ResponseModel<UserDTO>> Handle(LoginCommand request, CancellationToken cancellationToken)
             {
-                var result = await userManager.FindByEmailAsync(request.LoginDTO.Email);
+                var result = await userManager.FindByEmailAsync(request.LoginDTO.email);
                 if (result == null) {
                     return new ResponseModel<UserDTO>
                     {
                         status = false,
-                        message="wrong email or password"
-                    }; 
+                        message = "wrong email or password",
+                    };
                 }
-                var checkpass = await userManager.CheckPasswordAsync(result,request.LoginDTO.Password);
+                var checkpass= await userManager.CheckPasswordAsync(result,request.LoginDTO.password);
                 if (checkpass)
                 {
                     return new ResponseModel<UserDTO>
@@ -35,21 +40,18 @@ namespace training.Services.Account
                         data = new UserDTO
                         {
                             Id = result.Id,
-                            Email = result.Email,
-                            UserName = result.UserName
+                            email = result.Email,
+                            token = tokenService.CreateToken(result)
                         }
                     };
-
                 }
                 return new ResponseModel<UserDTO>
                 {
                     status = false,
-                    message = "wrong email or pass"
-
+                    message = "wrong email or password"
                 };
+           
             }
         }
     }
-    
-
 }
